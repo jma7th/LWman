@@ -18,6 +18,11 @@
 #macro MAIN_SURFACE_X 86
 #macro MAIN_SURFACE_Y 96
 
+#macro MAIN_SURFACE_L	global.main_surface_left 
+#macro MAIN_SURFACE_T	global.main_surface_top
+#macro MAIN_SURFACE_R	global.main_surface_right
+#macro MAIN_SURFACE_D	global.main_surface_down 
+
 #macro GUI_SURFACE_W window_get_width()
 #macro GUI_SURFACE_H window_get_height()
 #macro GUI_SURFACE_X 0

@@ -11,6 +11,14 @@ function player_start() {
 function player_move(){
 	hsp = movespeed * hmove
 	vsp = movespeed * vmove
+	speed = movespeed
+	if place_meeting(x+lengthdir_x(movespeed,direction),y+lengthdir_y(movespeed,direction),obj_solid) {
+		direction += 90
+	} 
+	
+	dir = direction % 360
+	
+	/*
 	var _collision = move_and_collide(hsp,vsp,obj_solid)
 	if array_length(_collision) > 0 {
 		dir += 90;
@@ -39,7 +47,7 @@ function player_move(){
 				hmove = 0;
 				vmove = 0;
 		}
-	
+	*/
 }
 
 function player_sprite(){
