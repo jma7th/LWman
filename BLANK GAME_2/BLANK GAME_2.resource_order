@@ -16,5 +16,17 @@
     {"name":"Tile Sets","order":2,"path":"folders/Tile Sets.yy",},
     {"name":"Timelines","order":8,"path":"folders/Timelines.yy",},
   ],
-  "ResourceOrderSettings":[],
+  "ResourceOrderSettings":[
+    {"name":"obj_player","order":2,"path":"objects/obj_player/obj_player.yy",},
+    {"name":"obj_solid","order":1,"path":"objects/obj_solid/obj_solid.yy",},
+    {"name":"rm_stage","order":1,"path":"rooms/rm_stage/rm_stage.yy",},
+    {"name":"game_control","order":2,"path":"scripts/game_control/game_control.yy",},
+    {"name":"general","order":3,"path":"scripts/general/general.yy",},
+    {"name":"player_functions","order":1,"path":"scripts/player_functions/player_functions.yy",},
+    {"name":"spr_gb_overlay","order":4,"path":"sprites/spr_gb_overlay/spr_gb_overlay.yy",},
+    {"name":"spr_player_down","order":3,"path":"sprites/spr_player_down/spr_player_down.yy",},
+    {"name":"spr_player_side","order":2,"path":"sprites/spr_player_side/spr_player_side.yy",},
+    {"name":"spr_player_up","order":1,"path":"sprites/spr_player_up/spr_player_up.yy",},
+    {"name":"spr_16x16mask","order":5,"path":"sprites/spr_16x16mask/spr_16x16mask.yy",},
+  ],
 }
