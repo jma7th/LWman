@@ -24,6 +24,7 @@ function player_start() {
 		
 }
 function player_move(){
+	if state = PLAYER_STATE.ALIVE && global.game_state = GAME_STATE.PLAY {
 	move_snap(2,2)
 	hsp = movespeed * hmove
 	vsp = movespeed * vmove
@@ -120,31 +121,43 @@ function player_move(){
 		var _obj = array_first(_collision)
 		switch (_obj.object_index) {
 			case obj_stairs:
-				room_goto_next()
+				if !(room == room_last) {
+					global.sfx_player_voice = audio_play_sound(snd_level_complete,0,0,SFX_VOL)
+					room_goto_next()
+				} else {
+					room_goto(rm_title)
+					score = 0;
+				}
 			break;
 			case obj_enemy:
 				state = PLAYER_STATE.DEAD
+				global.sfx_player_voice = audio_play_sound(snd_player_death,0,0,SFX_VOL)
 			break;
 			case obj_solid:
 					direction += 90;
+					global.sfx_player_voice = audio_play_sound(snd_bump,0,0,SFX_VOL)
 			break;
 			case obj_button:
 				if _obj.state = 1 {
 					direction+=90
+					global.sfx_player_voice = audio_play_sound(snd_bump,0,0,SFX_VOL)
 				}
 			break;
 			case  obj_pt_left:
 					direction+=90
+					global.sfx_player_voice = audio_play_sound(snd_bump,0,0,SFX_VOL)
 			break;
 			case obj_chest:
 				if _obj.state = 1 {
 					direction+=90
 					score+=100
+					global.sfx_voice = audio_play_sound(snd_coins,0,0,SFX_VOL)
 					_obj.state = 0
 				}
 			break;
 			case obj_campfire:
 				state = PLAYER_STATE.DEAD
+				global.sfx_player_voice = audio_play_sound(snd_player_death,0,0,SFX_VOL)
 			break;
 
 			default:
@@ -153,7 +166,7 @@ function player_move(){
 
 	}
 	
-	if state = PLAYER_STATE.ALIVE {
+	
 		switch (direction) {
 				case 0: 
 					hmove = 1;
@@ -188,25 +201,30 @@ function player_move(){
 }
 
 function player_sprite(){
-	if state = PLAYER_STATE.ALIVE {
-		image_speed = PLAYER_IMAGE_SPEED_MOVE;
-		switch (direction) {
-			case 0: sprite_index = spr_player_side;
-				image_xscale = 1;
-			break;
-			case 90: sprite_index = spr_player_up;
-			break;
-			case 180: sprite_index = spr_player_side;
-				image_xscale = -1;
-			break;
-			case 270: sprite_index = spr_player_down;
-			break;
+	if global.game_state = GAME_STATE.PLAY {
+		if state = PLAYER_STATE.ALIVE {
+			image_speed = PLAYER_IMAGE_SPEED_MOVE;
+			switch (direction) {
+				case 0: sprite_index = spr_player_side;
+					image_xscale = 1;
+				break;
+				case 90: sprite_index = spr_player_up;
+				break;
+				case 180: sprite_index = spr_player_side;
+					image_xscale = -1;
+				break;
+				case 270: sprite_index = spr_player_down;
+				break;
+			}
+		}
+	
+		if state = PLAYER_STATE.DEAD {
+			sprite_index = spr_player_death
+			image_speed = PLAYER_IMAGE_SPEED_DEATH
 		}
 	}
-	
-	if state = PLAYER_STATE.DEAD {
-		sprite_index = spr_player_death
-		image_speed = PLAYER_IMAGE_SPEED_DEATH
+	if global.game_state = GAME_STATE.PAUSE {
+		image_speed = 0;
 	}
 }
 
@@ -215,8 +233,9 @@ function player_draw(){
 }
 
 function player_reset() {
-	if input_check_pressed("special") {
+	if input_check_pressed("special") && state = PLAYER_STATE.ALIVE{
 		state = PLAYER_STATE.DEAD
+		global.sfx_player_voice = audio_play_sound(snd_player_death,0,0,SFX_VOL)
 	}
 }
 
@@ -225,5 +244,6 @@ function player_switch_button(){
 		with (obj_button) {
 			state =!state
 		}
+		global.sfx_voice = audio_play_sound(snd_switch,0,0,SFX_VOL)
 	}
 }

@@ -19,6 +19,14 @@ function game_control_start(){
 		PLAY,
 		PAUSE
 	}
+	global.bgm_voice = 0;
+	global.sfx_player_voice = 0;
+	global.sfx_voice = 0;
+	global.sfx_gui_voice = 0;
+	global.sfx_enemy_voice = 0;
+	
+	global.bgm_volume = 0.8
+	global.sfx_volume = 0.6
 	
 	MAIN_SURFACE = 0;
 	GUI_SURFACE = 0;
@@ -38,6 +46,10 @@ function game_control_main(){
 	if instance_exists(obj_player) {
 		if obj_player.x > 96 MAIN_SURFACE_L = obj_player.x - 96
 		if obj_player.y > 96 MAIN_SURFACE_T = obj_player.y - 96
+	}
+	
+	if vbutton_action.pressed() or vbutton_accept.pressed() or vbutton_special.pressed() {
+		global.sfx_gui_voice = audio_play_sound(snd_button_click,0,0,SFX_VOL)
 	}
 }
 
@@ -68,12 +80,40 @@ function game_control_draw_surface() {
 		MAIN_SURFACE = surface_create(360,640)
 	}
 	
+	if (room == rm_title) {
+		surface_set_target(MAIN_SURFACE)
+		draw_set_alpha(1)
+		draw_set_color(COLOR_4)
+		draw_rectangle(-4,40,MAIN_SURFACE_W,80,0)
+
+		draw_set_color(COLOR_1)
+		draw_set_font(fnt_title)
+		draw_set_halign(fa_center)
+		draw_text_scribble(MAIN_SURFACE_W/2,48,"Maddie Rush")
+			draw_set_alpha(0.5)
+		draw_set_color(COLOR_3)
+		draw_rectangle(-4,42,MAIN_SURFACE_W,64,0)
+		draw_set_color(COLOR_2)
+		draw_rectangle(-4,64,MAIN_SURFACE_W,80,0)
+		draw_set_alpha(1)
+		surface_reset_target()
+	}
+	
 	if (room == rm_tutorial) {
 		surface_set_target(MAIN_SURFACE)
 		draw_set_color(COLOR_1)
 		draw_set_font(fnt_default)
 		draw_set_halign(fa_left)
 		draw_text_scribble_ext(32,8," Help Maddie climb the tower of Manga while collecting the treasures scattered along the way.\n\nShe loves to run! Maybe a little too much.\n\nGuide her by unlocking the gates at the right time with the space bar or screen buttons, and sealing them again to keep her safe from enemies!",152)
+		surface_reset_target()
+	}
+	
+	if (room == rm_final) {
+		surface_set_target(MAIN_SURFACE)
+		draw_set_color(COLOR_1)
+		draw_set_font(fnt_default)
+		draw_set_halign(fa_left)
+		draw_text_scribble_ext(32,8,"Congratulations! You've helped Maddie reach the top of the tower of Manga.\nThis is a demo made for the GameVita 3.0 game jam, that ran from March 22nd 2024 at 12:30 AM to March 26th 2024 at 12:30 AM.\nResources used:\n-Super Gameboy Quest by Toadzilla\n-2bit character generator by 0x72\n-[512 sounds] By Juhani Junkala\n-EARLY GAMEBOY FONT by JIMMY CAMPBELL\n-Alagard font by Hewett Tsoi\n-BGM samples provided by the jam host\n\nMade by jma7th\n\nYour final score is: "+string(score),152)
 		surface_reset_target()
 	}
 
@@ -140,13 +180,16 @@ function game_control_draw_surface() {
 	surface_set_target(GUI_SURFACE)
 		draw_set_font(fnt_default)
 		draw_set_halign(fa_left)
+		if (room == rm_tutorial) {
 		draw_set_color(COLOR_4)
 		draw_rectangle(MAIN_SURFACE_X,282-16,400,290,0)
 		draw_set_color(COLOR_1)
-		if (room == rm_tutorial) {
 		draw_text(MAIN_SURFACE_X,282-16,$"Press start to continue.")
 		} else {
-			if !(room == rm_title) {
+			if !(room == rm_title) or !(room == rm_final){
+				draw_set_color(COLOR_4)
+				draw_rectangle(MAIN_SURFACE_X,282-16,400,290,0)
+				draw_set_color(COLOR_1)
 				draw_text(MAIN_SURFACE_X,282-16,$"Score: {score}")
 			}
 		}
@@ -171,6 +214,17 @@ function game_control_first_room(){
 	}
 }
 
+function game_control_pause_event(){
+	if input_check_pressed("accept") {
+		if global.game_state = GAME_STATE.PAUSE {
+			global.game_state = GAME_STATE.PLAY
+		} 
+		if global.game_state = GAME_STATE.PLAY {
+			global.game_state = GAME_STATE.PAUSE			
+		} 
+	}
+}
+
 function game_control_touch_start() {
 	vbutton_action = input_virtual_create().button("action").circle(258,448,35);
 	
@@ -179,7 +233,21 @@ function game_control_touch_start() {
 }
 
 function game_control_room_start(){
-
+	switch (room) {
+		case rm_title:
+			global.bgm_voice = audio_play_sound(snd_title,0,1,BGM_VOL)
+		break;
+		case rm_tutorial:
+		break;
+		case rm_stage:
+			audio_stop_sound(global.bgm_voice)
+			global.bgm_voice = audio_play_sound(snd_stages,0,1,BGM_VOL)
+		break;
+		default:
+			//audio_stop_sound(global.bgm_voice)
+		break;
+	}
+	
 	if layer_exists("Walls") {
 		layer_force_draw_depth(true,10000)
 		layer_script_begin("Walls",layer_shader_start)

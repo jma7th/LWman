@@ -110,7 +110,7 @@
     "9647":{"character":9647,"h":10,"offset":1,"shift":8,"w":6,"x":70,"y":74,},
   },
   "hinting":0,
-  "includeTTF":false,
+  "includeTTF":true,
   "interpreter":0,
   "italic":false,
   "kerningPairs":[],
@@ -138,6 +138,6 @@
     "name":"Default",
     "path":"texturegroups/Default",
   },
-  "TTFName":"",
+  "TTFName":"${project_dir}\\fonts\\fnt_default\\Early GameBoy.ttf",
   "usesSDF":false,
 }

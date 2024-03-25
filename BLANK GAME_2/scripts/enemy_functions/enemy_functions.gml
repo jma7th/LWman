@@ -22,69 +22,134 @@ function enemy_start() {
 			state = ENEMY_STATE.ALIVE;
 		})
 		
-		
+	step_sound = time_source_create(time_source_game,.8,time_source_units_seconds,function(){
+		global.sfx_enemy_voice = audio_play_sound(snd_enemy_footsteps,0,0,SFX_VOL)
+	})
 }
 function enemy_move(){
-	move_snap(movespeed,movespeed)
-	hsp = hmovespeed * hmove
-	vsp = vmovespeed * vmove
+	if state = ENEMY_STATE.ALIVE  && global.game_state = GAME_STATE.PLAY {
+		if instance_exists(obj_player) && (distance_to_object(obj_player) < 200) {
+			if !audio_is_playing(global.sfx_enemy_voice) {
+				global.sfx_enemy_voice = audio_play_sound(snd_enemy_footsteps,1,0,SFX_VOL)
+			}
+			/*var _ts = time_source_get_state(step_sound)
+			if (_ts = time_source_state_initial) or (_ts == time_source_state_stopped) {
+				time_source_start(step_sound)
+			}*/
+		} else {
+			if audio_is_playing(global.sfx_enemy_voice) {
+				audio_stop_sound(global.sfx_enemy_voice)
+			}
+		}
 	
-	var _objlist = []
+		move_snap(movespeed,movespeed)
+		hsp = hmovespeed * hmove
+		vsp = vmovespeed * vmove
 	
-	for (var i = 0; i < instance_number(obj_solid); ++i;)
-	{
-	    var _add = instance_find(obj_solid,i);
-		array_push(_objlist,_add)
-	}
+		var _objlist = []
 	
-	for (var i = 0; i < instance_number(obj_button); ++i;)
-	{
-		
-	    var _add = instance_find(obj_button,i);
-		if _add.state = 1 {
+		for (var i = 0; i < instance_number(obj_solid); ++i;)
+		{
+		    var _add = instance_find(obj_solid,i);
 			array_push(_objlist,_add)
 		}
-	}
 	
-	for (var i = 0; i < instance_number(obj_chest); ++i;)
-	{
-	    var _add = instance_find(obj_chest,i);
-		if _add.state = 1 {
+			for (var i = 0; i < instance_number(obj_pt_right); ++i;)
+		{
+		
+		    var _add = instance_find(obj_pt_right,i);
+			if _add.x < x && !place_meeting(x,y,_add) {
+				array_push(_objlist,_add)
+			}
+		}
+	
+		for (var i = 0; i < instance_number(obj_pt_down); ++i;)
+		{
+		
+		    var _add = instance_find(obj_pt_down,i);
+			if _add.y < y && !place_meeting(x,y,_add){
+				array_push(_objlist,_add)
+			}
+		}
+	
+		for (var i = 0; i < instance_number(obj_pt_left); ++i;)
+		{
+		
+		    var _add = instance_find(obj_pt_left,i);
+			if _add.x > x && !place_meeting(x,y,_add) {
+				array_push(_objlist,_add)
+			}
+		}
+	
+		for (var i = 0; i < instance_number(obj_pt_up); ++i;)
+		{
+		
+		    var _add = instance_find(obj_pt_up,i);
+			if _add.y > y && !place_meeting(x,y,_add){
+				array_push(_objlist,_add)
+			}
+		}
+	
+		for (var i = 0; i < instance_number(obj_button); ++i;)
+		{
+		
+		    var _add = instance_find(obj_button,i);
+			if _add.state = 1 {
+				array_push(_objlist,_add)
+			}
+		}
+	
+		for (var i = 0; i < instance_number(obj_chest); ++i;)
+		{
+		    var _add = instance_find(obj_chest,i);
+			if _add.state = 1 {
+				array_push(_objlist,_add)
+			}
+		}
+	
+		for (var i = 0; i < instance_number(obj_campfire); ++i;)
+		{
+		
+		    var _add = instance_find(obj_campfire,i);
 			array_push(_objlist,_add)
 		}
-	}
-	
-	for (var i = 0; i < instance_number(obj_campfire); ++i;)
-	{
-		
-	    var _add = instance_find(obj_campfire,i);
-		array_push(_objlist,_add)
-	}
 	
 	
-	var _collision = move_and_collide(hsp,vsp,_objlist)
-	if array_length(_collision) > 0 {
-		var _obj = array_first(_collision)
-		switch (_obj.object_index) {
-			case obj_solid:
-					direction+=90;
-			break;
-			case obj_button:
-					direction+=90
-			break;
-			case obj_chest:
-					direction+=90
-			break;
-			case obj_campfire:
-				state = ENEMY_STATE.DEAD
-			break;
-			default:
-			break;
-		}
+		var _collision = move_and_collide(hsp,vsp,_objlist)
+		if array_length(_collision) > 0 {
+			var _obj = array_first(_collision)
+			switch (_obj.object_index) {
+				case obj_solid:
+						direction+=90;
+				break;
+				case obj_button:
+						direction+=90
+				break;
+				case obj_chest:
+						direction+=90
+				break;
+				case obj_pt_left:
+						direction+=90
+				break;
+				case obj_pt_right:
+						direction+=90
+				break;
+				case obj_pt_up:
+						direction+=90
+				break;
+				case obj_pt_down:
+						direction+=90
+				break;
+				case obj_campfire:
+					state = ENEMY_STATE.DEAD
+				break;
+				default:
+				break;
+			}
 
-	}
+		}
 	
-	if state = ENEMY_STATE.ALIVE {
+	
 		switch (direction) {
 				case 0: 
 					hmove = 1;
@@ -107,6 +172,7 @@ function enemy_move(){
 					vmove = 0;
 			}
 		}
+		
 	if state = ENEMY_STATE.DEAD {
 		hmove = 0;
 		vmove = 0;
@@ -119,26 +185,33 @@ function enemy_move(){
 }
 
 function enemy_sprite(){
-	if state = ENEMY_STATE.ALIVE {
-		image_speed = PLAYER_IMAGE_SPEED_MOVE;
-		switch (direction) {
-			case 0: sprite_index = spr_enemy_side;
-				image_xscale = 1;
-			break;
-			case 90: sprite_index = spr_enemy_up;
-			break;
-			case 180: sprite_index = spr_enemy_side;
-				image_xscale = -1;
-			break;
-			case 270: sprite_index = spr_enemy_down;
-			break;
+	if global.game_state = GAME_STATE.PLAY {
+		if state = ENEMY_STATE.ALIVE {
+			image_speed = PLAYER_IMAGE_SPEED_MOVE;
+			switch (direction) {
+				case 0: sprite_index = spr_enemy_side;
+					image_xscale = 1;
+				break;
+				case 90: sprite_index = spr_enemy_up;
+				break;
+				case 180: sprite_index = spr_enemy_side;
+					image_xscale = -1;
+				break;
+				case 270: sprite_index = spr_enemy_down;
+				break;
+			}
+		}
+	
+		if state = ENEMY_STATE.DEAD {
+			sprite_index = spr_enemy_death
+			image_speed = PLAYER_IMAGE_SPEED_DEATH
 		}
 	}
 	
-	if state = ENEMY_STATE.DEAD {
-		sprite_index = spr_enemy_death
-		image_speed = PLAYER_IMAGE_SPEED_DEATH
+	if global.game_state = GAME_STATE.PAUSE {
+		image_speed = 0;	
 	}
+	
 }
 
 function enemy_draw(){
