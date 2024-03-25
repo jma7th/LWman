@@ -27,6 +27,8 @@ function game_control_start(){
 	global.main_surface_right = 0;
 	global.main_surface_down = 0;
 	global.game_state = GAME_STATE.MENU
+	
+	_tileset_walls[20][20] = 0
 }
 
 function game_control_main(){
@@ -57,6 +59,8 @@ function game_control_draw_surface() {
 		application_surface_draw_enable(false)
 	}
 	
+
+	
 	if !surface_exists(MAIN_SURFACE) {
 		MAIN_SURFACE = surface_create(360,640)
 	}
@@ -69,6 +73,41 @@ function game_control_draw_surface() {
 		draw_text_scribble_ext(32,8," Help Maddie climb the tower of Tomba while collecting the treasures scattered along the way.\n\nShe loves to run! Maybe a little too much.\n\nGuide her by unlocking the gates at the right time, and sealing them again to keep her safe from enemies!",152)
 		surface_reset_target()
 	}
+
+	/*
+	if layer_exists("Walls") {
+		layer_set
+	}/*
+		var lay_id = layer_get_id("Walls");
+		var map_id = layer_tilemap_get_id(lay_id);
+		layer_set_visible(lay_id,false)
+		
+		for (var i = 0; i < tilemap_get_width(map_id); i++;)
+		{
+			for (var j = 0; j < tilemap_get_height(map_id); j++;)
+			{
+				var data = tilemap_get(map_id, i, j);
+				if !tile_get_empty(data)
+				{
+					var _arr = []
+					array_insert(_arr,j,data)
+				    array_insert(_tileset_walls,i,_arr)
+					//data = tile_set_empty(data)
+				    //tilemap_set(map_id, data, i, j);
+				}
+			}
+		}
+		
+		for (var k = 0; k < array_length(_tileset_walls); k++) 
+		{	
+			for (var l = 0; l < array_length(_tileset_walls[k]); l++) 
+			{
+				surface_set_target(MAIN_SURFACE)
+				draw_tile(tl_walls,_tileset_walls[k][l],0,MAIN_SURFACE_X+(16*k),MAIN_SURFACE_Y+(16*l))
+				surface_reset_target();
+			}
+		}
+	}*/
 									
 	draw_surface_general(	MAIN_SURFACE,
 															MAIN_SURFACE_L,
@@ -101,7 +140,11 @@ function game_control_draw_surface() {
 		draw_set_color(COLOR_4)
 		draw_rectangle(MAIN_SURFACE_X,282-14,400,280,0)
 		draw_set_color(COLOR_1)
+		if (room == rm_tutorial) {
+		draw_text(MAIN_SURFACE_X,282-14,$"Press start to continue.")
+		} else {
 		draw_text(MAIN_SURFACE_X,282-14,$"Score: {score}")
+		}
 		draw_sprite_ext(OVERLAY_SPRITE,0,OVERLAY_X,OVERLAY_Y,1,1,0,c_white,1)	
 		surface_reset_target()
 	draw_surface(GUI_SURFACE,view_get_xport(0)+GUI_SURFACE_X,view_get_yport(0)+GUI_SURFACE_Y)
@@ -116,5 +159,45 @@ function game_control_draw_surface() {
 function game_control_first_room(){
 	if room = rm_initialize {
 		room_goto_next()
+	}
+}
+
+function game_control_room_start(){
+
+	if layer_exists("Walls") {
+		layer_force_draw_depth(true,10000)
+		layer_script_begin("Walls",layer_shader_start)
+		layer_script_end("Walls",layer_shader_end)
+	}
+	if layer_exists("Ground") {
+		layer_force_draw_depth(true,10000)
+		layer_script_begin("Ground",layer_shader_start)
+		layer_script_end("Ground",layer_shader_end)
+	}
+	if layer_exists("Surground") {
+		layer_force_draw_depth(true,10000)
+		layer_script_begin("Surground",layer_shader_start)
+		layer_script_end("Surground",layer_shader_end)
+	}
+	if layer_exists("Player") {
+		layer_force_draw_depth(true,10000)
+		//layer_script_begin("Player",layer_shader_start)
+		//layer_script_end("Player",layer_shader_end)
+	}
+}
+
+function layer_shader_start()
+{
+    if event_type == ev_draw
+    {
+		surface_set_target(MAIN_SURFACE)
+	}
+}
+
+function layer_shader_end()
+{
+    if event_type == ev_draw
+    {
+		surface_reset_target()
 	}
 }

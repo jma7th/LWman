@@ -50,7 +50,7 @@ function player_move(){
 	{
 		
 	    var _add = instance_find(obj_pt_right,i);
-		if _add.x < x-16 {
+		if _add.x < x && !place_meeting(x,y,_add) {
 			array_push(_objlist,_add)
 		}
 	}
@@ -59,7 +59,7 @@ function player_move(){
 	{
 		
 	    var _add = instance_find(obj_pt_down,i);
-		if _add.y < y-16 {
+		if _add.y < y && !place_meeting(x,y,_add){
 			array_push(_objlist,_add)
 		}
 	}
@@ -68,7 +68,7 @@ function player_move(){
 	{
 		
 	    var _add = instance_find(obj_pt_left,i);
-		if _add.x > x+16 {
+		if _add.x > x && !place_meeting(x,y,_add) {
 			array_push(_objlist,_add)
 		}
 	}
@@ -77,7 +77,7 @@ function player_move(){
 	{
 		
 	    var _add = instance_find(obj_pt_up,i);
-		if _add.y > y-16 {
+		if _add.y > y && !place_meeting(x,y,_add){
 			array_push(_objlist,_add)
 		}
 	}
@@ -188,7 +188,6 @@ function player_move(){
 }
 
 function player_sprite(){
-	depth = -16000
 	if state = PLAYER_STATE.ALIVE {
 		image_speed = PLAYER_IMAGE_SPEED_MOVE;
 		switch (direction) {
