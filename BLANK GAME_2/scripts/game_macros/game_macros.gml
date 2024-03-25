@@ -3,6 +3,10 @@
 // GAME CONTROL
 #macro GAME obj_game_control
 
+// MISC
+#macro COLOR_1 #584422
+#macro COLOR_4 #d4d29b
+
 // SURFACES
 #macro MAIN_SURFACE global.main_surface
 #macro GUI_SURFACE global.gui_surface

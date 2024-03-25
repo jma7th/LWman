@@ -3,8 +3,13 @@
 
 function game_control_start(){
 	MAIN_SURFACE = -1;
-	surf = 0;
+	
 	enum PLAYER_STATE {
+		ALIVE,
+		DEAD	
+	}
+	
+	enum ENEMY_STATE {
 		ALIVE,
 		DEAD	
 	}
@@ -22,7 +27,6 @@ function game_control_start(){
 	global.main_surface_right = 0;
 	global.main_surface_down = 0;
 	global.game_state = GAME_STATE.MENU
-	//game_set_camera(0,0)
 }
 
 function game_control_main(){
@@ -54,19 +58,6 @@ function game_control_draw_surface() {
 	if !surface_exists(MAIN_SURFACE) {
 		MAIN_SURFACE = surface_create(360,640)
 	}
-	
-/*
-	surf = sprite_create_from_surface(MAIN_SURFACE,
-								MAIN_SURFACE_X,
-								MAIN_SURFACE_Y,
-								MAIN_SURFACE_W,
-								MAIN_SURFACE_H,
-								1,
-								0,
-								0,
-								0)
-	
-	*/
 									
 	draw_surface_general(	MAIN_SURFACE,
 															MAIN_SURFACE_L,
@@ -91,68 +82,25 @@ function game_control_draw_surface() {
 	
 	if !surface_exists(GUI_SURFACE) {
 		GUI_SURFACE = surface_create(GUI_SURFACE_W,GUI_SURFACE_H)
-		surface_set_target(GUI_SURFACE)
-		draw_sprite_ext(OVERLAY_SPRITE,0,OVERLAY_X,OVERLAY_Y,1,1,0,c_white,1)	
-		surface_reset_target()
 		}
-	 draw_surface(GUI_SURFACE,view_get_xport(0)+GUI_SURFACE_X,view_get_yport(0)+GUI_SURFACE_Y)
-}
-
-function game_control_draw(){
-	game_set_surface();
-	if surface_exists(MAIN_SURFACE) {
-		surface_set_target(MAIN_SURFACE)
-		surface_reset_target()	
-	}
-}
-
-function game_control_draw_gui(){
-	if surface_exists(GUI_SURFACE) {
-		surface_set_target(GUI_SURFACE)
+		
+	surface_set_target(GUI_SURFACE)
+		draw_set_font(fnt_default)
+		draw_set_halign(fa_left)
+		draw_set_color(COLOR_4)
+		draw_rectangle(MAIN_SURFACE_X,282-14,400,280,0)
+		draw_set_color(COLOR_1)
+		draw_text(MAIN_SURFACE_X,282-14,$"Score: {score}")
 		draw_sprite_ext(OVERLAY_SPRITE,0,OVERLAY_X,OVERLAY_Y,1,1,0,c_white,1)	
 		surface_reset_target()
-	}
-}
-
-function game_control_pre_draw(){
- //	if surface_exists(MAIN_SURFACE) surface_free(MAIN_SURFACE)
-//	if surface_exists(GUI_SURFACE)	surface_free(GUI_SURFACE)
-}
-
-function game_control_draw_end(){
-	draw_clear(c_black)
-	if surface_exists(MAIN_SURFACE) {
-		draw_surface_general(	MAIN_SURFACE,
-															MAIN_SURFACE_L,
-															MAIN_SURFACE_T,
-															MAIN_SURFACE_W,
-															MAIN_SURFACE_H,
-															MAIN_SURFACE_X,
-															MAIN_SURFACE_Y,
-															1,
-															1,
-															0,
-															#9a783c,
-															c_white,
-															c_white,
-															c_white,
-															1
-															)
-
-	}
-	if surface_exists(GUI_SURFACE) draw_surface(GUI_SURFACE,view_get_xport(0)+GUI_SURFACE_X,view_get_yport(0)+GUI_SURFACE_Y)
+	draw_surface(GUI_SURFACE,view_get_xport(0)+GUI_SURFACE_X,view_get_yport(0)+GUI_SURFACE_Y)
+	
+	surface_set_target(GUI_SURFACE)
+	//draw_clear_alpha(c_black,0)
+	surface_reset_target();
 }
 
 
-
-function game_set_camera(_view = 0,_camera = 0){
-	view_set_xport(_view,MAIN_SURFACE_X)
-	view_set_yport(_view,MAIN_SURFACE_Y)
-	view_set_wport(_view,MAIN_SURFACE_W)
-	view_set_hport(_view,MAIN_SURFACE_H)
-	view_set_visible(_view,true)
-	view_set_camera(_view,_camera)
-}
 
 function game_control_first_room(){
 	if room = rm_initialize {

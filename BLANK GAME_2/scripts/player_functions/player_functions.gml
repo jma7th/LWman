@@ -7,12 +7,17 @@ function player_start() {
 	hmove = 1;
 	dir = 0;
 	movespeed = 2;
+	direction = 270;
+	directionstart = direction;
 	state = PLAYER_STATE.ALIVE
-	
-	death_ringer = time_source_create(time_source_game,2,time_source_units_seconds,function(){
+	disappear = time_source_create(time_source_game,2,time_source_units_seconds,function(){
+		image_alpha = 0;
+	})
+	death_ringer = time_source_create(time_source_game,4,time_source_units_seconds,function(){
 			x = xstart;
 			y = ystart;
-			direction = 270;
+			direction = directionstart;
+			image_alpha = 1;
 			state = PLAYER_STATE.ALIVE;
 		})
 		
@@ -62,6 +67,15 @@ function player_move(){
 		array_push(_objlist,_add)
 	}
 	
+	for (var i = 0; i < instance_number(obj_enemy); ++i;)
+	{
+		
+	    var _add = instance_find(obj_enemy,i);
+		if _add.state = ENEMY_STATE.ALIVE {
+			array_push(_objlist,_add)
+		}
+	}
+	
 	
 	var _collision = move_and_collide(hsp,vsp,_objlist)
 	if array_length(_collision) > 0 {
@@ -78,10 +92,14 @@ function player_move(){
 			case obj_chest:
 				if _obj.state = 1 {
 					direction+=90
+					score+=100
 					_obj.state = 0
 				}
 			break;
 			case obj_campfire:
+				state = PLAYER_STATE.DEAD
+			break;
+			case obj_enemy:
 				state = PLAYER_STATE.DEAD
 			break;
 			default:
@@ -119,14 +137,16 @@ function player_move(){
 		var _dr = time_source_get_state(death_ringer) 
 		if (_dr == time_source_state_stopped) or (_dr == time_source_state_initial) {
 			time_source_start(death_ringer)
+			time_source_start(disappear)
 		}
 	}		
 }
 
 function player_sprite(){
+	depth = -16000
 	if state = PLAYER_STATE.ALIVE {
 		image_speed = PLAYER_IMAGE_SPEED_MOVE;
-		switch (dir) {
+		switch (direction) {
 			case 0: sprite_index = spr_player_side;
 				image_xscale = 1;
 			break;
@@ -148,4 +168,18 @@ function player_sprite(){
 
 function player_draw(){
 	draw_self_on_surface()
+}
+
+function player_reset() {
+	if keyboard_check_pressed(vk_lshift) {
+		state = PLAYER_STATE.DEAD
+	}
+}
+
+function player_switch_button(){
+	if keyboard_check_pressed(vk_space) && !place_meeting(x,y,obj_button){
+		with (obj_button) {
+			state =!state
+		}
+	}
 }
