@@ -18,9 +18,9 @@
 #macro OVERLAY_Y window_get_height()/2
 
 #macro MAIN_SURFACE_W 200
-#macro MAIN_SURFACE_H 192
+#macro MAIN_SURFACE_H 200
 #macro MAIN_SURFACE_X 86
-#macro MAIN_SURFACE_Y 96
+#macro MAIN_SURFACE_Y 80
 
 #macro MAIN_SURFACE_L	global.main_surface_left 
 #macro MAIN_SURFACE_T	global.main_surface_top

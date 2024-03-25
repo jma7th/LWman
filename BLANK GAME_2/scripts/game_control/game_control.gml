@@ -29,6 +29,9 @@ function game_control_start(){
 	global.game_state = GAME_STATE.MENU
 	
 	_tileset_walls[20][20] = 0
+	
+	game_control_touch_start()
+	
 }
 
 function game_control_main(){
@@ -70,7 +73,7 @@ function game_control_draw_surface() {
 		draw_set_color(COLOR_1)
 		draw_set_font(fnt_default)
 		draw_set_halign(fa_left)
-		draw_text_scribble_ext(32,8," Help Maddie climb the tower of Tomba while collecting the treasures scattered along the way.\n\nShe loves to run! Maybe a little too much.\n\nGuide her by unlocking the gates at the right time, and sealing them again to keep her safe from enemies!",152)
+		draw_text_scribble_ext(32,8," Help Maddie climb the tower of Manga while collecting the treasures scattered along the way.\n\nShe loves to run! Maybe a little too much.\n\nGuide her by unlocking the gates at the right time with the space bar or screen buttons, and sealing them again to keep her safe from enemies!",152)
 		surface_reset_target()
 	}
 
@@ -138,14 +141,20 @@ function game_control_draw_surface() {
 		draw_set_font(fnt_default)
 		draw_set_halign(fa_left)
 		draw_set_color(COLOR_4)
-		draw_rectangle(MAIN_SURFACE_X,282-14,400,280,0)
+		draw_rectangle(MAIN_SURFACE_X,282-16,400,290,0)
 		draw_set_color(COLOR_1)
 		if (room == rm_tutorial) {
-		draw_text(MAIN_SURFACE_X,282-14,$"Press start to continue.")
+		draw_text(MAIN_SURFACE_X,282-16,$"Press start to continue.")
 		} else {
-		draw_text(MAIN_SURFACE_X,282-14,$"Score: {score}")
+			if !(room == rm_title) {
+				draw_text(MAIN_SURFACE_X,282-16,$"Score: {score}")
+			}
 		}
-		draw_sprite_ext(OVERLAY_SPRITE,0,OVERLAY_X,OVERLAY_Y,1,1,0,c_white,1)	
+		draw_sprite_ext(OVERLAY_SPRITE,0,OVERLAY_X,OVERLAY_Y,1,1,0,c_white,1)
+		if vbutton_action.check() {draw_sprite(spr_button_b,-1,258,448)}
+		if vbutton_accept.check() {draw_sprite(spr_button_c,-1,194,533)}
+		if vbutton_special.check() {draw_sprite(spr_button_c,-1,132,532)}
+		//input_virtual_debug_draw();
 		surface_reset_target()
 	draw_surface(GUI_SURFACE,view_get_xport(0)+GUI_SURFACE_X,view_get_yport(0)+GUI_SURFACE_Y)
 	
@@ -160,6 +169,13 @@ function game_control_first_room(){
 	if room = rm_initialize {
 		room_goto_next()
 	}
+}
+
+function game_control_touch_start() {
+	vbutton_action = input_virtual_create().button("action").circle(258,448,35);
+	
+	vbutton_accept = input_virtual_create().button("accept").circle(196,532,28);
+	vbutton_special = input_virtual_create().button("special").circle(132,532,28);
 }
 
 function game_control_room_start(){

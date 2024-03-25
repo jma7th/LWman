@@ -215,13 +215,13 @@ function player_draw(){
 }
 
 function player_reset() {
-	if keyboard_check_pressed(vk_lshift) {
+	if input_check_pressed("special") {
 		state = PLAYER_STATE.DEAD
 	}
 }
 
 function player_switch_button(){
-	if keyboard_check_pressed(vk_space) && !place_meeting(x,y,obj_button){
+	if input_check_pressed("action") && !place_meeting(x,y,obj_button){
 		with (obj_button) {
 			state =!state
 		}
