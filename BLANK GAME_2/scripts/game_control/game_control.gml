@@ -2,6 +2,8 @@
 // https://help.yoyogames.com/hc/en-us/articles/360005277377 para obter mais informações
 
 function game_control_start(){
+	MAIN_SURFACE = -1;
+	surf = 0;
 	enum PLAYER_STATE {
 		ALIVE,
 		DEAD	
@@ -28,11 +30,10 @@ function game_control_main(){
 		if obj_player.x > 96 MAIN_SURFACE_L = obj_player.x - 96
 		if obj_player.y > 96 MAIN_SURFACE_T = obj_player.y - 96
 	}
-	game_set_surface();
 }
 
 function game_set_surface(){
-	if !surface_exists(MAIN_SURFACE) MAIN_SURFACE = surface_create(360,360)
+	if !surface_exists(MAIN_SURFACE) MAIN_SURFACE = surface_create(360,640)
 	if !surface_exists(GUI_SURFACE) GUI_SURFACE = surface_create(GUI_SURFACE_W,GUI_SURFACE_H)
 	if application_surface_is_enabled() {
 		application_surface_enable(false)
@@ -40,28 +41,34 @@ function game_set_surface(){
 	}
 }
 
-function game_control_draw(){
-	if surface_exists(MAIN_SURFACE) {
-		surface_set_target(MAIN_SURFACE)
-		surface_reset_target()	
-	}
-}
-
-function game_control_draw_gui(){
-	if surface_exists(GUI_SURFACE) {
-		surface_set_target(GUI_SURFACE)
-		draw_sprite_ext(OVERLAY_SPRITE,0,OVERLAY_X,OVERLAY_Y,1,1,0,c_white,1)	
-		surface_reset_target()
-	}
-}
-
 function game_control_post_draw(){
-	if surface_exists(MAIN_SURFACE) surface_free(MAIN_SURFACE)
-	if surface_exists(GUI_SURFACE)	surface_free(GUI_SURFACE)
+
 }
 
-function game_control_draw_end(){
-	if surface_exists(MAIN_SURFACE) draw_surface_general(	MAIN_SURFACE,
+function game_control_draw_surface() {
+	if application_surface_is_enabled() {
+		application_surface_enable(false)
+		application_surface_draw_enable(false)
+	}
+	
+	if !surface_exists(MAIN_SURFACE) {
+		MAIN_SURFACE = surface_create(360,640)
+	}
+	
+/*
+	surf = sprite_create_from_surface(MAIN_SURFACE,
+								MAIN_SURFACE_X,
+								MAIN_SURFACE_Y,
+								MAIN_SURFACE_W,
+								MAIN_SURFACE_H,
+								1,
+								0,
+								0,
+								0)
+	
+	*/
+									
+	draw_surface_general(	MAIN_SURFACE,
 															MAIN_SURFACE_L,
 															MAIN_SURFACE_T,
 															MAIN_SURFACE_W,
@@ -77,6 +84,62 @@ function game_control_draw_end(){
 															c_white,
 															1
 															)
+		
+	surface_set_target(MAIN_SURFACE)
+	draw_clear_alpha(c_black,0)
+	surface_reset_target();
+	
+	if !surface_exists(GUI_SURFACE) {
+		GUI_SURFACE = surface_create(GUI_SURFACE_W,GUI_SURFACE_H)
+		surface_set_target(GUI_SURFACE)
+		draw_sprite_ext(OVERLAY_SPRITE,0,OVERLAY_X,OVERLAY_Y,1,1,0,c_white,1)	
+		surface_reset_target()
+		}
+	 draw_surface(GUI_SURFACE,view_get_xport(0)+GUI_SURFACE_X,view_get_yport(0)+GUI_SURFACE_Y)
+}
+
+function game_control_draw(){
+	game_set_surface();
+	if surface_exists(MAIN_SURFACE) {
+		surface_set_target(MAIN_SURFACE)
+		surface_reset_target()	
+	}
+}
+
+function game_control_draw_gui(){
+	if surface_exists(GUI_SURFACE) {
+		surface_set_target(GUI_SURFACE)
+		draw_sprite_ext(OVERLAY_SPRITE,0,OVERLAY_X,OVERLAY_Y,1,1,0,c_white,1)	
+		surface_reset_target()
+	}
+}
+
+function game_control_pre_draw(){
+ //	if surface_exists(MAIN_SURFACE) surface_free(MAIN_SURFACE)
+//	if surface_exists(GUI_SURFACE)	surface_free(GUI_SURFACE)
+}
+
+function game_control_draw_end(){
+	draw_clear(c_black)
+	if surface_exists(MAIN_SURFACE) {
+		draw_surface_general(	MAIN_SURFACE,
+															MAIN_SURFACE_L,
+															MAIN_SURFACE_T,
+															MAIN_SURFACE_W,
+															MAIN_SURFACE_H,
+															MAIN_SURFACE_X,
+															MAIN_SURFACE_Y,
+															1,
+															1,
+															0,
+															#9a783c,
+															c_white,
+															c_white,
+															c_white,
+															1
+															)
+
+	}
 	if surface_exists(GUI_SURFACE) draw_surface(GUI_SURFACE,view_get_xport(0)+GUI_SURFACE_X,view_get_yport(0)+GUI_SURFACE_Y)
 }
 
