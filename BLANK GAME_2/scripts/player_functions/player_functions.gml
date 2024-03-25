@@ -27,15 +27,60 @@ function player_move(){
 	move_snap(2,2)
 	hsp = movespeed * hmove
 	vsp = movespeed * vmove
-	//speed = movespeed
-	/*
-	if place_meeting(x+lengthdir_x(movespeed,direction),y+lengthdir_y(movespeed,direction),obj_solid) {
-		direction += 90
-	}*/
 		
-	dir = direction % 360
 	
 	var _objlist = []
+	
+	for (var i = 0; i < instance_number(obj_stairs); ++i;)
+	{
+	    var _add = instance_find(obj_stairs,i);
+		array_push(_objlist,_add)
+	}
+	
+	for (var i = 0; i < instance_number(obj_enemy); ++i;)
+	{
+		
+	    var _add = instance_find(obj_enemy,i);
+		if _add.state = ENEMY_STATE.ALIVE {
+			array_push(_objlist,_add)
+		}
+	}
+	
+	for (var i = 0; i < instance_number(obj_pt_right); ++i;)
+	{
+		
+	    var _add = instance_find(obj_pt_right,i);
+		if _add.x < x-16 {
+			array_push(_objlist,_add)
+		}
+	}
+	
+	for (var i = 0; i < instance_number(obj_pt_down); ++i;)
+	{
+		
+	    var _add = instance_find(obj_pt_down,i);
+		if _add.y < y-16 {
+			array_push(_objlist,_add)
+		}
+	}
+	
+	for (var i = 0; i < instance_number(obj_pt_left); ++i;)
+	{
+		
+	    var _add = instance_find(obj_pt_left,i);
+		if _add.x > x+16 {
+			array_push(_objlist,_add)
+		}
+	}
+	
+	for (var i = 0; i < instance_number(obj_pt_up); ++i;)
+	{
+		
+	    var _add = instance_find(obj_pt_up,i);
+		if _add.y > y-16 {
+			array_push(_objlist,_add)
+		}
+	}
 	
 	for (var i = 0; i < instance_number(obj_solid); ++i;)
 	{
@@ -67,20 +112,19 @@ function player_move(){
 		array_push(_objlist,_add)
 	}
 	
-	for (var i = 0; i < instance_number(obj_enemy); ++i;)
-	{
-		
-	    var _add = instance_find(obj_enemy,i);
-		if _add.state = ENEMY_STATE.ALIVE {
-			array_push(_objlist,_add)
-		}
-	}
+
 	
 	
 	var _collision = move_and_collide(hsp,vsp,_objlist)
 	if array_length(_collision) > 0 {
 		var _obj = array_first(_collision)
 		switch (_obj.object_index) {
+			case obj_stairs:
+				room_goto_next()
+			break;
+			case obj_enemy:
+				state = PLAYER_STATE.DEAD
+			break;
 			case obj_solid:
 					direction += 90;
 			break;
@@ -88,6 +132,9 @@ function player_move(){
 				if _obj.state = 1 {
 					direction+=90
 				}
+			break;
+			case  obj_pt_left:
+					direction+=90
 			break;
 			case obj_chest:
 				if _obj.state = 1 {
@@ -99,9 +146,7 @@ function player_move(){
 			case obj_campfire:
 				state = PLAYER_STATE.DEAD
 			break;
-			case obj_enemy:
-				state = PLAYER_STATE.DEAD
-			break;
+
 			default:
 			break;
 		}
