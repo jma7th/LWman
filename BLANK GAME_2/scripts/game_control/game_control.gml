@@ -1,12 +1,25 @@
 // Os recursos de script mudaram para a v2.3.0; veja
 // https://help.yoyogames.com/hc/en-us/articles/360005277377 para obter mais informações
+
 function game_control_start(){
+	enum PLAYER_STATE {
+		ALIVE,
+		DEAD	
+	}
+	
+	enum GAME_STATE {
+		MENU,
+		PLAY,
+		PAUSE
+	}
+	
 	MAIN_SURFACE = 0;
 	GUI_SURFACE = 0;
 	global.main_surface_left = 0;
 	global.main_surface_top = 0;
 	global.main_surface_right = 0;
 	global.main_surface_down = 0;
+	global.game_state = GAME_STATE.MENU
 	//game_set_camera(0,0)
 }
 
