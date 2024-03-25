@@ -45,8 +45,10 @@ function game_set_surface(){
 	}
 }
 
-function game_control_post_draw(){
-
+function game_control_tutorial(){
+	if input_check_pressed("accept") {
+		room_goto_next()
+	}
 }
 
 function game_control_draw_surface() {
@@ -57,6 +59,15 @@ function game_control_draw_surface() {
 	
 	if !surface_exists(MAIN_SURFACE) {
 		MAIN_SURFACE = surface_create(360,640)
+	}
+	
+	if (room == rm_tutorial) {
+		surface_set_target(MAIN_SURFACE)
+		draw_set_color(COLOR_1)
+		draw_set_font(fnt_default)
+		draw_set_halign(fa_left)
+		draw_text_scribble_ext(32,8," Help Maddie climb the tower of Tomba while collecting the treasures scattered along the way.\n\nShe loves to run! Maybe a little too much.\n\nGuide her by unlocking the gates at the right time, and sealing them again to keep her safe from enemies!",152)
+		surface_reset_target()
 	}
 									
 	draw_surface_general(	MAIN_SURFACE,

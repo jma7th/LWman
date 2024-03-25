@@ -20,9 +20,9 @@ function __input_config_verbs()
             left:  [input_binding_key(vk_left),  input_binding_key("A")],
             right: [input_binding_key(vk_right), input_binding_key("D")],
             
-            accept:  input_binding_key(vk_space),
+            accept:  input_binding_key(vk_enter),
             cancel:  input_binding_key(vk_backspace),
-            action:  input_binding_key(vk_enter),
+            action:  input_binding_key(vk_space),
             special: input_binding_key(vk_shift),
             
             //No aiming verbs since we use the mouse for that (see below for aiming verb examples)

@@ -3,8 +3,8 @@
 function enemy_start() {
 	hsp = 0;
 	vsp = 0;
-	vmove = 0;
-	hmove = 1;
+	vmove = 1;
+	hmove = 0;
 	direction = 270;
 	movespeed = 2;
 	hmovespeed = movespeed;
