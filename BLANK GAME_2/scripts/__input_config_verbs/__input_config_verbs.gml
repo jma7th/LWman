@@ -21,9 +21,9 @@ function __input_config_verbs()
             right: [input_binding_key(vk_right), input_binding_key("D")],
             
             accept:  input_binding_key(vk_enter),
-            cancel:  input_binding_key(vk_backspace),
+            change:  input_binding_key(vk_shift),
             action:  input_binding_key(vk_space),
-            special: input_binding_key(vk_shift),
+            special: input_binding_key(vk_backspace),
             
             //No aiming verbs since we use the mouse for that (see below for aiming verb examples)
             shoot: input_binding_mouse_button(mb_left),

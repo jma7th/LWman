@@ -18,8 +18,8 @@
 #macro OVERLAY_SPRITE spr_gb_overlay
 #macro OVERLAY_W sprite_width(OVERLAY_SPRITE)
 #macro OVERLAY_H sprite_height(OVERLAY_SPRITE)
-#macro OVERLAY_X window_get_width()/2
-#macro OVERLAY_Y window_get_height()/2
+#macro OVERLAY_X 0 //window_get_width()/2
+#macro OVERLAY_Y 0 //window_get_height()/2
 
 #macro MAIN_SURFACE_W 200
 #macro MAIN_SURFACE_H 200

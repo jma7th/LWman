@@ -6,26 +6,44 @@ function player_start() {
 	vmove = 0;
 	hmove = 1;
 	dir = 0;
-	movespeed = 2;
+	movespeed = 1;
 	direction = 270;
 	directionstart = direction;
+	turndirectionvalue = 90
+	turndirection = turndirectionvalue*(global.player_turn)
 	state = PLAYER_STATE.ALIVE
 	disappear = time_source_create(time_source_game,2,time_source_units_seconds,function(){
 		image_alpha = 0;
+		x = xstart;
+		y = ystart;
+		direction = directionstart;
 	})
 	death_ringer = time_source_create(time_source_game,4,time_source_units_seconds,function(){
-			x = xstart;
-			y = ystart;
-			direction = directionstart;
 			image_alpha = 1;
 			state = PLAYER_STATE.ALIVE;
 		})
-		
+	respawn = time_source_create(time_source_game,4,time_source_units_frames,function(){
+		switch (image_alpha) {
+			case 0:
+				image_alpha = 0.2
+			case 0.2:
+				image_alpha = 0.7
+			break;
+			case 0.7:
+				image_alpha = 0.2
+			break;
+			default:
+			break;
+		}
+	})
 		
 }
 function player_move(){
 	if state = PLAYER_STATE.ALIVE && global.game_state = GAME_STATE.PLAY {
-	move_snap(2,2)
+		turndirection = turndirectionvalue*(global.player_turn)
+		if movespeed>0 {
+			move_snap(movespeed,movespeed)
+			}
 	hsp = movespeed * hmove
 	vsp = movespeed * vmove
 		
@@ -37,7 +55,7 @@ function player_move(){
 	    var _add = instance_find(obj_stairs,i);
 		array_push(_objlist,_add)
 	}
-	
+	/*
 	for (var i = 0; i < instance_number(obj_enemy); ++i;)
 	{
 		
@@ -45,13 +63,13 @@ function player_move(){
 		if _add.state = ENEMY_STATE.ALIVE {
 			array_push(_objlist,_add)
 		}
-	}
+	}*/
 	
 	for (var i = 0; i < instance_number(obj_pt_right); ++i;)
 	{
 		
 	    var _add = instance_find(obj_pt_right,i);
-		if _add.x < x && !place_meeting(x,y,_add) {
+		if _add.x < x-movespeed && !place_meeting(x,y,_add) {
 			array_push(_objlist,_add)
 		}
 	}
@@ -60,7 +78,8 @@ function player_move(){
 	{
 		
 	    var _add = instance_find(obj_pt_down,i);
-		if _add.y < y && !place_meeting(x,y,_add){
+		//if _add.y < y-movespeed && !place_meeting(x,y,_add){
+		if vmove = -1 && !place_meeting(x,y,_add){ 
 			array_push(_objlist,_add)
 		}
 	}
@@ -69,7 +88,7 @@ function player_move(){
 	{
 		
 	    var _add = instance_find(obj_pt_left,i);
-		if _add.x > x && !place_meeting(x,y,_add) {
+		if _add.x > x+movespeed && !place_meeting(x,y,_add) {
 			array_push(_objlist,_add)
 		}
 	}
@@ -78,7 +97,7 @@ function player_move(){
 	{
 		
 	    var _add = instance_find(obj_pt_up,i);
-		if _add.y > y && !place_meeting(x,y,_add){
+		if _add.y > y+movespeed && !place_meeting(x,y,_add){
 			array_push(_objlist,_add)
 		}
 	}
@@ -124,34 +143,48 @@ function player_move(){
 				if !(room == room_last) {
 					global.sfx_player_voice = audio_play_sound(snd_level_complete,0,0,SFX_VOL)
 					room_goto_next()
-				} else {
+				}
+				if (room == rm_final) {
 					room_goto(rm_title)
 					score = 0;
+					x = xstart;
+					y = ystart;
 				}
 			break;
 			case obj_enemy:
 				state = PLAYER_STATE.DEAD
-				global.sfx_player_voice = audio_play_sound(snd_player_death,0,0,SFX_VOL)
 			break;
 			case obj_solid:
-					direction += 90;
+					direction += turndirection;
 					global.sfx_player_voice = audio_play_sound(snd_bump,0,0,SFX_VOL)
 			break;
 			case obj_button:
 				if _obj.state = 1 {
-					direction+=90
+					direction+=turndirection
 					global.sfx_player_voice = audio_play_sound(snd_bump,0,0,SFX_VOL)
 				}
 			break;
 			case  obj_pt_left:
-					direction+=90
+					direction+=turndirection
+					global.sfx_player_voice = audio_play_sound(snd_bump,0,0,SFX_VOL)
+			break;
+			case  obj_pt_right:
+					direction+=turndirection
+					global.sfx_player_voice = audio_play_sound(snd_bump,0,0,SFX_VOL)
+			break;
+			case  obj_pt_up:
+					direction+=turndirection
+					global.sfx_player_voice = audio_play_sound(snd_bump,0,0,SFX_VOL)
+			break;
+			case  obj_pt_down:
+					direction+=turndirection
 					global.sfx_player_voice = audio_play_sound(snd_bump,0,0,SFX_VOL)
 			break;
 			case obj_chest:
 				if _obj.state = 1 {
-					direction+=90
-					score+=100
-					global.sfx_voice = audio_play_sound(snd_coins,0,0,SFX_VOL)
+					direction+=turndirection
+					score+=200
+					global.sfx_voice = audio_play_sound(snd_chest,0,0,SFX_VOL)
 					_obj.state = 0
 				}
 			break;
@@ -193,11 +226,21 @@ function player_move(){
 		hmove = 0;
 		vmove = 0;
 		var _dr = time_source_get_state(death_ringer) 
+		var _dp = time_source_get_state(disappear)
+		var _rp = time_source_get_state(respawn)
 		if (_dr == time_source_state_stopped) or (_dr == time_source_state_initial) {
 			time_source_start(death_ringer)
 			time_source_start(disappear)
 		}
-	}		
+		if (_dp == time_source_state_stopped) or (_dp == time_source_state_initial) {
+			var _remain = time_source_get_time_remaining(death_ringer)
+			if _remain < 3 {
+				if (_rp == time_source_state_stopped) or (_rp == time_source_state_initial) {
+					time_source_start(respawn)
+				}
+			}
+		}
+	}			
 }
 
 function player_sprite(){
@@ -205,26 +248,52 @@ function player_sprite(){
 		if state = PLAYER_STATE.ALIVE {
 			image_speed = PLAYER_IMAGE_SPEED_MOVE;
 			switch (direction) {
-				case 0: sprite_index = spr_player_side;
+				case 0: 
+					if !(sprite_index = spr_player_side) sprite_index = spr_player_side		
 					image_xscale = 1;
 				break;
-				case 90: sprite_index = spr_player_up;
+				case 90:
+					if !(sprite_index = spr_player_up) sprite_index = spr_player_up;
 				break;
-				case 180: sprite_index = spr_player_side;
+				case 180: 
+					if !(sprite_index = spr_player_side) sprite_index = spr_player_side;
 					image_xscale = -1;
 				break;
-				case 270: sprite_index = spr_player_down;
+				case 270: 
+					if !(sprite_index = spr_player_down) sprite_index = spr_player_down;
 				break;
 			}
 		}
 	
 		if state = PLAYER_STATE.DEAD {
-			sprite_index = spr_player_death
-			image_speed = PLAYER_IMAGE_SPEED_DEATH
+			if image_alpha = 1 {
+				sprite_index = spr_player_death
+				image_speed = PLAYER_IMAGE_SPEED_DEATH
+			} else {
+				image_speed = PLAYER_IMAGE_SPEED_MOVE;
+				switch (direction) {
+					case 0: 
+						if !(sprite_index = spr_player_side) sprite_index = spr_player_side		
+						image_xscale = 1;
+					break;
+					case 90:
+						if !(sprite_index = spr_player_up) sprite_index = spr_player_up;
+					break;
+					case 180: 
+						if !(sprite_index = spr_player_side) sprite_index = spr_player_side;
+						image_xscale = -1;
+					break;
+					case 270: 
+						if !(sprite_index = spr_player_down) sprite_index = spr_player_down;
+					break;
+					default:
+					break;
+				}
+			}
 		}
-	}
-	if global.game_state = GAME_STATE.PAUSE {
-		image_speed = 0;
+		if global.game_state = GAME_STATE.PAUSE {
+			image_speed = 0;
+		}
 	}
 }
 
@@ -236,6 +305,13 @@ function player_reset() {
 	if input_check_pressed("special") && state = PLAYER_STATE.ALIVE{
 		state = PLAYER_STATE.DEAD
 		global.sfx_player_voice = audio_play_sound(snd_player_death,0,0,SFX_VOL)
+	}
+}
+
+function player_switch_direction(){
+	if input_check_pressed("change") {
+		global.player_turn *=-1
+		global.sfx_voice = audio_play_sound(snd_change,0,0,SFX_VOL)
 	}
 }
 

@@ -3,7 +3,8 @@
 
 function game_control_start(){
 	MAIN_SURFACE = -1;
-	
+	mysurf = -1;
+	global.current_os = os_type
 	enum PLAYER_STATE {
 		ALIVE,
 		DEAD	
@@ -19,6 +20,7 @@ function game_control_start(){
 		PLAY,
 		PAUSE
 	}
+	global.player_turn = 1;
 	global.bgm_voice = 0;
 	global.sfx_player_voice = 0;
 	global.sfx_voice = 0;
@@ -34,7 +36,12 @@ function game_control_start(){
 	global.main_surface_top = 0;
 	global.main_surface_right = 0;
 	global.main_surface_down = 0;
-	global.game_state = GAME_STATE.MENU
+	global.game_state = GAME_STATE.PLAY
+	
+	global.gui_android_width = display_get_gui_width()
+	global.gui_android_height = display_get_gui_height()
+	global.gui_xscale = 1// global.gui_android_width 
+	global.gui_yscale = 1 // global.gui_android_height 
 	
 	_tileset_walls[20][20] = 0
 	
@@ -48,9 +55,36 @@ function game_control_main(){
 		if obj_player.y > 96 MAIN_SURFACE_T = obj_player.y - 96
 	}
 	
-	if vbutton_action.pressed() or vbutton_accept.pressed() or vbutton_special.pressed() {
+	if vbutton_action.pressed() or vbutton_accept.pressed() or vbutton_special.pressed() 
+	or vbutton_change.pressed() {
 		global.sfx_gui_voice = audio_play_sound(snd_button_click,0,0,SFX_VOL)
 	}
+	
+
+	if layer_exists("Walls") {
+		if layer_exists("Solid") {
+			//if (layer_get_depth("Walls") > layer_get_depth("Solid"))	{
+				layer_depth("Walls",	layer_get_depth("Solid")-100);
+			//}
+		}
+	}
+
+	if layer_exists("Player") {
+		if layer_exists("Ground") {
+			//if (layer_get_depth("Player") < layer_get_depth("Ground"))	{
+				layer_depth("Player",	layer_get_depth("Ground")-100);
+			//}
+		}
+	}
+
+	if layer_exists("Instances") {
+		if layer_exists("Player") {
+			//if  (layer_get_depth("Instances") < layer_get_depth("Player"))	{
+				layer_depth("Instances",	layer_get_depth("Player")+90);
+			//}
+		}
+	}
+	
 }
 
 function game_set_surface(){
@@ -113,7 +147,7 @@ function game_control_draw_surface() {
 		draw_set_color(COLOR_1)
 		draw_set_font(fnt_default)
 		draw_set_halign(fa_left)
-		draw_text_scribble_ext(32,8,"Congratulations! You've helped Maddie reach the top of the tower of Manga.\nThis is a demo made for the GameVita 3.0 game jam, that ran from March 22nd 2024 at 12:30 AM to March 26th 2024 at 12:30 AM.\nResources used:\n-Super Gameboy Quest by Toadzilla\n-2bit character generator by 0x72\n-[512 sounds] By Juhani Junkala\n-EARLY GAMEBOY FONT by JIMMY CAMPBELL\n-Alagard font by Hewett Tsoi\n-BGM samples provided by the jam host\n\nMade by jma7th\n\nYour final score is: "+string(score),152)
+		draw_text_scribble_ext(32,8," Congratulations!\nYou've helped Maddie reach the top of the tower of Manga.\n\n\n\n\nThis is a demo made for the GameVita 3.0 game jam, that ran from March 22nd 2024 at 12:30 AM to March 26th 2024 at 12:30 AM.\n\n\nResources used:\n-Super Gameboy Quest by Toadzilla\n-2bit character generator by 0x72\n-512 sounds By Juhani Junkala\n-EARLY GAMEBOY FONT by JIMMY CAMPBELL\n-Alagard font by Hewett Tsoi\n-BGM samples provided by the jam host\n\nMade by jma7th\n\n\n\n\n\n\nYour final score is: "+string(score)+"\n\n\n\n\nThank you for playing!",152)
 		surface_reset_target()
 	}
 
@@ -151,7 +185,25 @@ function game_control_draw_surface() {
 			}
 		}
 	}*/
-									
+	/*mysurf = sprite_create_from_surface(MAIN_SURFACE,0,0,surface_get_width(MAIN_SURFACE),surface_get_height(MAIN_SURFACE),0,0,0,0)
+	/*draw_sprite_general(mysurf,
+								-1,
+								MAIN_SURFACE_L,
+								MAIN_SURFACE_T,
+								MAIN_SURFACE_W,
+								MAIN_SURFACE_H,
+								MAIN_SURFACE_X,
+								MAIN_SURFACE_Y,
+								1,
+								1,
+								0,
+								c_white,
+								c_white,
+								c_white,
+								c_white,
+								1
+								)*/
+	
 	draw_surface_general(	MAIN_SURFACE,
 															MAIN_SURFACE_L,
 															MAIN_SURFACE_T,
@@ -168,7 +220,7 @@ function game_control_draw_surface() {
 															c_white,
 															1
 															)
-		
+	
 	surface_set_target(MAIN_SURFACE)
 	draw_clear_alpha(c_black,0)
 	surface_reset_target();
@@ -186,21 +238,52 @@ function game_control_draw_surface() {
 		draw_set_color(COLOR_1)
 		draw_text(MAIN_SURFACE_X,282-16,$"Press start to continue.")
 		} else {
-			if !(room == rm_title) or !(room == rm_final){
+			if (room == rm_title) or (room == rm_final){
+				draw_clear_alpha(c_black,0)
+			} else {
 				draw_set_color(COLOR_4)
 				draw_rectangle(MAIN_SURFACE_X,282-16,400,290,0)
 				draw_set_color(COLOR_1)
-				draw_text(MAIN_SURFACE_X,282-16,$"Score: {score}")
+				if global.game_state = GAME_STATE.PLAY {
+					draw_text(MAIN_SURFACE_X,282-16,$"Score: {score}")
+				} else {
+					draw_text(MAIN_SURFACE_X,282-16,$"PAUSED!")
+				}
 			}
 		}
+		
 		draw_sprite_ext(OVERLAY_SPRITE,0,OVERLAY_X,OVERLAY_Y,1,1,0,c_white,1)
+		
 		if vbutton_action.check() {draw_sprite(spr_button_b,-1,258,448)}
+		if vbutton_change.check() {draw_sprite(spr_button_b,-1,318,418)}
 		if vbutton_accept.check() {draw_sprite(spr_button_c,-1,194,533)}
 		if vbutton_special.check() {draw_sprite(spr_button_c,-1,132,532)}
 		//input_virtual_debug_draw();
 		surface_reset_target()
-	draw_surface(GUI_SURFACE,view_get_xport(0)+GUI_SURFACE_X,view_get_yport(0)+GUI_SURFACE_Y)
-	
+		/*if (os_type == os_android) {
+			draw_surface_general(	GUI_SURFACE,
+									0,
+									0,
+									view_get_xport(0),
+									view_get_yport(0),
+									display_get_gui_width(),
+									display_get_gui_height(),
+									global.gui_xscale,
+									global.gui_yscale,
+									0,
+									c_white,
+									c_white,
+									c_white,
+									c_white,
+									1
+									)
+		}
+		else {*/
+			draw_surface(	GUI_SURFACE,
+									view_get_xport(0)+GUI_SURFACE_X,
+									view_get_yport(0)+GUI_SURFACE_Y
+									)
+		
 	surface_set_target(GUI_SURFACE)
 	//draw_clear_alpha(c_black,0)
 	surface_reset_target();
@@ -216,64 +299,111 @@ function game_control_first_room(){
 
 function game_control_pause_event(){
 	if input_check_pressed("accept") {
-		if global.game_state = GAME_STATE.PAUSE {
-			global.game_state = GAME_STATE.PLAY
-		} 
-		if global.game_state = GAME_STATE.PLAY {
-			global.game_state = GAME_STATE.PAUSE			
-		} 
+		switch (global.game_state){
+			case GAME_STATE.PLAY:
+				global.game_state = GAME_STATE.PAUSE
+			break;
+			case GAME_STATE.PAUSE:
+				global.game_state = GAME_STATE.PLAY
+			break;
+			default:
+				global.game_state = GAME_STATE.PLAY
+			break;
+		}
 	}
 }
 
 function game_control_touch_start() {
-	vbutton_action = input_virtual_create().button("action").circle(258,448,35);
-	
-	vbutton_accept = input_virtual_create().button("accept").circle(196,532,28);
-	vbutton_special = input_virtual_create().button("special").circle(132,532,28);
+	var _xscale = 1;
+	var _yscale = 1;
+	if (display_get_gui_height() > 360) {
+		_xscale = display_get_gui_width() / 360
+		_yscale = display_get_gui_height() / 640
+	}
+	vbutton_action = input_virtual_create().button("action").circle(258*_xscale,448*_yscale,35*_xscale);
+	vbutton_change = input_virtual_create().button("change").circle(318*_xscale,418*_yscale,35*_xscale);
+	vbutton_accept = input_virtual_create().button("accept").circle(196*_xscale,532*_yscale,28*_xscale);
+	vbutton_special = input_virtual_create().button("special").circle(132*_xscale,532*_yscale,28*_xscale);
+	//display_get_gui_width() / 360 
+	/*
+	vbutton_action = input_virtual_create().button("action").circle(448*_yscale,258*_xscale,35*_yscale);
+	vbutton_change = input_virtual_create().button("change").circle(418*_yscale,318*_xscale,35*_yscale);
+	vbutton_accept = input_virtual_create().button("accept").circle(532*_yscale,196*_xscale,28*_yscale);
+	vbutton_special = input_virtual_create().button("special").circle(532*_yscale,132*_xscale,28*_yscale);
+	*/
+	/*
+	vbutton_action = input_virtual_create().button("action").circle(258*_yscale,448*_xscale,35*_yscale);
+	vbutton_change = input_virtual_create().button("change").circle(318*_yscale,418*_xscale,35*_yscale);
+	vbutton_accept = input_virtual_create().button("accept").circle(196*_yscale,532*_xscale,28*_yscale);
+	vbutton_special = input_virtual_create().button("special").circle(132*_yscale,532*_xscale,28*_yscale);
+	*/
 }
 
 function game_control_room_start(){
+
+	MAIN_SURFACE_T = 0;
+	MAIN_SURFACE_L = 0;
+	
+	
+
+	if layer_exists("Walls") {
+
+		layer_script_begin("Walls",layer_shader_start)
+		layer_script_end("Walls",layer_shader_end)
+	}
+	if layer_exists("Ground") {
+
+		layer_script_begin("Ground",layer_shader_start)
+		layer_script_end("Ground",layer_shader_end)
+	}
+	if layer_exists("Surground") {
+		layer_script_begin("Surground",layer_shader_start)
+		layer_script_end("Surground",layer_shader_end)
+	}
+	if layer_exists("Solid") {
+		layer_script_begin("Solid",layer_shader_start)
+		layer_script_end("Solid",layer_shader_end)
+	}
+	if layer_exists("Instances") {
+		layer_script_begin("Instances",layer_shader_start)
+		layer_script_end("Instances",layer_shader_end)
+	}
+	if layer_exists("Player") {
+		layer_script_begin("Player",layer_shader_start)
+		layer_script_end("Player",layer_shader_end)
+	}
+
+	
 	switch (room) {
 		case rm_title:
+			audio_stop_sound(global.bgm_voice)
 			global.bgm_voice = audio_play_sound(snd_title,0,1,BGM_VOL)
 		break;
 		case rm_tutorial:
+			if !(global.game_state = GAME_STATE.PLAY) {
+				global.game_state = GAME_STATE.PLAY
+			}
 		break;
 		case rm_stage:
 			audio_stop_sound(global.bgm_voice)
 			global.bgm_voice = audio_play_sound(snd_stages,0,1,BGM_VOL)
 		break;
+		case rm_final:
+			audio_stop_sound(global.bgm_voice)
+			global.bgm_voice = audio_play_sound(snd_final,0,1,BGM_VOL)
+		break;
 		default:
-			//audio_stop_sound(global.bgm_voice)
+			
 		break;
 	}
 	
-	if layer_exists("Walls") {
-		layer_force_draw_depth(true,10000)
-		layer_script_begin("Walls",layer_shader_start)
-		layer_script_end("Walls",layer_shader_end)
-	}
-	if layer_exists("Ground") {
-		layer_force_draw_depth(true,10000)
-		layer_script_begin("Ground",layer_shader_start)
-		layer_script_end("Ground",layer_shader_end)
-	}
-	if layer_exists("Surground") {
-		layer_force_draw_depth(true,10000)
-		layer_script_begin("Surground",layer_shader_start)
-		layer_script_end("Surground",layer_shader_end)
-	}
-	if layer_exists("Player") {
-		layer_force_draw_depth(true,10000)
-		//layer_script_begin("Player",layer_shader_start)
-		//layer_script_end("Player",layer_shader_end)
-	}
 }
 
 function layer_shader_start()
 {
     if event_type == ev_draw
     {
+		if surface_exists(MAIN_SURFACE)
 		surface_set_target(MAIN_SURFACE)
 	}
 }
