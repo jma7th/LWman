@@ -4,6 +4,11 @@
 function game_control_start(){
 	MAIN_SURFACE = -1;
 	mysurf = -1;
+	enum DRAW_MODE {
+		DEFAULT,
+		CUSTOM
+	}
+	global.drawing_mode =  DRAW_MODE.DEFAULT
 	global.current_os = os_type
 	enum PLAYER_STATE {
 		ALIVE,
@@ -19,6 +24,11 @@ function game_control_start(){
 		MENU,
 		PLAY,
 		PAUSE
+	}
+	
+	enum CAMERA_MODE {
+		FIXED,
+		FOLLOW
 	}
 	global.player_turn = 1;
 	global.bgm_voice = 0;
@@ -43,17 +53,50 @@ function game_control_start(){
 	global.gui_xscale = 1// global.gui_android_width 
 	global.gui_yscale = 1 // global.gui_android_height 
 	
+	global.camera_mode = CAMERA_MODE.FIXED
 	_tileset_walls[20][20] = 0
 	
 	game_control_touch_start()
+}
+
+function game_control_view_setup() {
+	camera_destroy(view_camera[0])
+	view_enabled = true;
+	room_set_view_enabled(0,true)
+	view_set_visible(0,true)
+	view_set_xport(0,0)
+	view_set_yport(0,0)
+	view_set_wport(0,360)
+	view_set_hport(0,640)
+
+	view_camera[0] = camera_create_view(-80, -80, view_get_wport(0), view_get_hport(0))
+	camera_set_view_border(view_camera[0],200,200)
 	
 }
 
 function game_control_main(){
+	
 	if instance_exists(obj_player) {
-		if obj_player.x > 96 MAIN_SURFACE_L = obj_player.x - 96
-		if obj_player.y > 96 MAIN_SURFACE_T = obj_player.y - 96
+		if global.camera_mode = CAMERA_MODE.FOLLOW {
+		camera_set_view_pos(view_camera[0],obj_player.x-184,obj_player.y-184)
+		}
+		//camera_set_view_size(view_camera[0],200,200)
+		if global.drawing_mode = DRAW_MODE.CUSTOM {
+			if obj_player.x > 96 MAIN_SURFACE_L = obj_player.x - 96
+			if obj_player.y > 96 MAIN_SURFACE_T = obj_player.y - 96
+		} else {
+			//if obj_player.x > 96 {
+				//camera_set_view_pos(view_camera[0],camera_get_view_x(view_camera[0])+obj_player.x,
+				//camera_get_view_y(view_camera[0])+obj_player.y)
+			//	view_set_xport(0, obj_player.x - 96)
+			//}
+			//if obj_player.y > 96 {
+				//camera_set_view_pos(view_camera[0],camera_get_view_x(view_camera[0]),obj_player.y - 96)
+			//	view_set_yport(0, obj_player.y - 96)
+			//}
+		}
 	}
+	
 	
 	if vbutton_action.pressed() or vbutton_accept.pressed() or vbutton_special.pressed() 
 	or vbutton_change.pressed() {
@@ -84,7 +127,6 @@ function game_control_main(){
 			//}
 		}
 	}
-	
 }
 
 function game_set_surface(){
@@ -100,6 +142,77 @@ function game_control_tutorial(){
 	if input_check_pressed("accept") {
 		room_goto_next()
 	}
+}
+
+function game_control_draw() {
+	if (room == rm_title) {
+		
+		draw_set_alpha(1)
+		draw_set_color(COLOR_4)
+		draw_rectangle(-4,40,MAIN_SURFACE_W,80,0)
+
+		draw_set_color(COLOR_1)
+		draw_set_font(fnt_title)
+		draw_set_halign(fa_center)
+		draw_text_scribble(MAIN_SURFACE_W/2,48,"Maddie Rush")
+			draw_set_alpha(0.5)
+		draw_set_color(COLOR_3)
+		draw_rectangle(-4,42,MAIN_SURFACE_W,64,0)
+		draw_set_color(COLOR_2)
+		draw_rectangle(-4,64,MAIN_SURFACE_W,80,0)
+		draw_set_alpha(1)
+
+	}
+	
+	if (room == rm_tutorial) {
+
+		draw_set_color(COLOR_1)
+		draw_set_font(fnt_default)
+		draw_set_halign(fa_left)
+		draw_text_scribble_ext(32,8," Help Maddie climb the tower of Manga while collecting the treasures scattered along the way.\n\nShe loves to run! Maybe a little too much.\n\nGuide her by unlocking the gates at the right time with the space bar or screen buttons, and sealing them again to keep her safe from enemies!",152)
+
+	}
+	
+	if (room == rm_final) {
+
+		draw_set_color(COLOR_1)
+		draw_set_font(fnt_default)
+		draw_set_halign(fa_left)
+		draw_text_scribble_ext(32,8," Congratulations!\nYou've helped Maddie reach the top of the tower of Manga.\n\n\n\n\nThis is a demo made for the GameVita 3.0 game jam, that ran from March 22nd 2024 at 12:30 AM to March 26th 2024 at 12:30 AM.\n\n\nResources used:\n-Super Gameboy Quest by Toadzilla\n-2bit character generator by 0x72\n-512 sounds By Juhani Junkala\n-EARLY GAMEBOY FONT by JIMMY CAMPBELL\n-Alagard font by Hewett Tsoi\n-BGM samples provided by the jam host\n\nMade by jma7th\n\n\n\n\n\n\nYour final score is: "+string(score)+"\n\n\n\n\nThank you for playing!",152)
+
+	}
+}
+
+function game_control_draw_gui() {
+	draw_set_font(fnt_default)
+		draw_set_halign(fa_left)
+		if (room == rm_tutorial) {
+		draw_set_color(COLOR_4)
+		draw_rectangle(MAIN_SURFACE_X,282-16,400,290,0)
+		draw_set_color(COLOR_1)
+		draw_text(MAIN_SURFACE_X,282-16,$"Press start to continue.")
+		} else {
+			if (room == rm_title) or (room == rm_final){
+				draw_clear_alpha(c_black,0)
+			} else {
+				draw_set_color(COLOR_4)
+				draw_rectangle(MAIN_SURFACE_X,282-16,400,290,0)
+				draw_set_color(COLOR_1)
+				if global.game_state = GAME_STATE.PLAY {
+					draw_text(MAIN_SURFACE_X,282-16,$"Score: {score}")
+				} else {
+					draw_text(MAIN_SURFACE_X,282-16,$"PAUSED!")
+				}
+			}
+		}
+		
+		draw_sprite_ext(OVERLAY_SPRITE,0,OVERLAY_X,OVERLAY_Y,1,1,0,c_white,1)
+		
+		if vbutton_action.check() {draw_sprite(spr_button_b,-1,258,448)}
+		if vbutton_change.check() {draw_sprite(spr_button_b,-1,318,418)}
+		if vbutton_accept.check() {draw_sprite(spr_button_c,-1,194,533)}
+		if vbutton_special.check() {draw_sprite(spr_button_c,-1,132,532)}
+
 }
 
 function game_control_draw_surface() {
@@ -341,6 +454,11 @@ function game_control_touch_start() {
 
 function game_control_room_start(){
 
+	if global.drawing_mode = DRAW_MODE.DEFAULT {
+		game_control_view_setup() 
+	}
+
+	if global.drawing_mode = DRAW_MODE.CUSTOM {
 	MAIN_SURFACE_T = 0;
 	MAIN_SURFACE_L = 0;
 	
@@ -372,23 +490,29 @@ function game_control_room_start(){
 		layer_script_begin("Player",layer_shader_start)
 		layer_script_end("Player",layer_shader_end)
 	}
-
+	}
 	
 	switch (room) {
 		case rm_title:
+			global.camera_mode = CAMERA_MODE.FIXED
+			camera_set_view_pos(view_camera[0],0,0)
+			camera_set_view_border(view_camera[0],0,0)
 			audio_stop_sound(global.bgm_voice)
 			global.bgm_voice = audio_play_sound(snd_title,0,1,BGM_VOL)
 		break;
 		case rm_tutorial:
+
 			if !(global.game_state = GAME_STATE.PLAY) {
 				global.game_state = GAME_STATE.PLAY
 			}
 		break;
 		case rm_stage:
+			global.camera_mode = CAMERA_MODE.FOLLOW
 			audio_stop_sound(global.bgm_voice)
 			global.bgm_voice = audio_play_sound(snd_stages,0,1,BGM_VOL)
 		break;
 		case rm_final:
+			game_control_view_setup()
 			audio_stop_sound(global.bgm_voice)
 			global.bgm_voice = audio_play_sound(snd_final,0,1,BGM_VOL)
 		break;
