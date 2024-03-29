@@ -59,7 +59,7 @@ function game_control_start(){
 	game_control_touch_start()
 }
 
-function game_control_view_setup() {
+function game_control_view_setup(_room_x = -80, _room_y = -80) {
 	camera_destroy(view_camera[0])
 	view_enabled = true;
 	room_set_view_enabled(0,true)
@@ -69,7 +69,7 @@ function game_control_view_setup() {
 	view_set_wport(0,360)
 	view_set_hport(0,640)
 
-	view_camera[0] = camera_create_view(-80, -80, view_get_wport(0), view_get_hport(0))
+	view_camera[0] = camera_create_view(_room_x, _room_y, view_get_wport(0), view_get_hport(0))
 	camera_set_view_border(view_camera[0],200,200)
 	
 }
@@ -192,9 +192,7 @@ function game_control_draw_gui() {
 		draw_set_color(COLOR_1)
 		draw_text(MAIN_SURFACE_X,282-16,$"Press start to continue.")
 		} else {
-			if (room == rm_title) or (room == rm_final){
-				draw_clear_alpha(c_black,0)
-			} else {
+			if !(room == rm_title) and !(room == rm_final){
 				draw_set_color(COLOR_4)
 				draw_rectangle(MAIN_SURFACE_X,282-16,400,290,0)
 				draw_set_color(COLOR_1)
@@ -454,9 +452,10 @@ function game_control_touch_start() {
 
 function game_control_room_start(){
 
-	if global.drawing_mode = DRAW_MODE.DEFAULT {
-		game_control_view_setup() 
-	}
+	//if global.drawing_mode = DRAW_MODE.DEFAULT {
+	//	game_control_view_setup() 
+		//show_message_async(camera_get_view_x(view_camera[0]))
+	//}
 
 	if global.drawing_mode = DRAW_MODE.CUSTOM {
 	MAIN_SURFACE_T = 0;
@@ -494,14 +493,12 @@ function game_control_room_start(){
 	
 	switch (room) {
 		case rm_title:
-			global.camera_mode = CAMERA_MODE.FIXED
-			camera_set_view_pos(view_camera[0],0,0)
-			camera_set_view_border(view_camera[0],0,0)
+			game_control_view_setup(-80,-80)
 			audio_stop_sound(global.bgm_voice)
 			global.bgm_voice = audio_play_sound(snd_title,0,1,BGM_VOL)
 		break;
 		case rm_tutorial:
-
+			game_control_view_setup(-80,-80)
 			if !(global.game_state = GAME_STATE.PLAY) {
 				global.game_state = GAME_STATE.PLAY
 			}
