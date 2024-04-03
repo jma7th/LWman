@@ -78,8 +78,12 @@ function game_control_main(){
 	
 	if instance_exists(obj_player) {
 		if global.camera_mode = CAMERA_MODE.FOLLOW {
-		camera_set_view_pos(view_camera[0],obj_player.x-184,obj_player.y-184)
+			if room = rm_final { camera_set_view_pos(view_camera[0],-84,obj_player.y-96) }
+			else {
+			camera_set_view_pos(view_camera[0],obj_player.x-184,obj_player.y-184)
+			}
 		}
+		
 		//camera_set_view_size(view_camera[0],200,200)
 		if global.drawing_mode = DRAW_MODE.CUSTOM {
 			if obj_player.x > 96 MAIN_SURFACE_L = obj_player.x - 96
@@ -493,7 +497,9 @@ function game_control_room_start(){
 	
 	switch (room) {
 		case rm_title:
+			global.camera_mode = CAMERA_MODE.FIXED
 			game_control_view_setup(-80,-80)
+			
 			audio_stop_sound(global.bgm_voice)
 			global.bgm_voice = audio_play_sound(snd_title,0,1,BGM_VOL)
 		break;
@@ -505,11 +511,19 @@ function game_control_room_start(){
 		break;
 		case rm_stage:
 			global.camera_mode = CAMERA_MODE.FOLLOW
+			game_control_view_setup(-80,-80)
 			audio_stop_sound(global.bgm_voice)
 			global.bgm_voice = audio_play_sound(snd_stages,0,1,BGM_VOL)
 		break;
+		case rm_stage_2:
+			game_control_view_setup(-80,-80)
+			break;
+		case rm_stage_3:
+			game_control_view_setup(-80,-80)
+			break;
 		case rm_final:
-			game_control_view_setup()
+			game_control_view_setup(-80,-80)
+			global.camera_mode = CAMERA_MODE.FOLLOW
 			audio_stop_sound(global.bgm_voice)
 			global.bgm_voice = audio_play_sound(snd_final,0,1,BGM_VOL)
 		break;
